@@ -30,10 +30,7 @@ static NSString *const kListViewTableViewCellReuseIdentifier = @"kListViewTableV
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
-    
-    if(self.noteStrings == nil){
-        self.noteStrings = [NSMutableArray array];
-    }
+    [self readNoteData];
     
   
 }
@@ -101,6 +98,8 @@ UIImage *image = note.image;
     
     [self.noteStrings addObject:newNote];
     [self.tableView reloadData];
+    
+    [self saveNoteData];
     
     [self dismissViewControllerAnimated:YES completion:nil];
 }
@@ -174,6 +173,34 @@ UIImage *image = note.image;
 //    [NSKeyedArchiver archiveRootObject:dataDict toFile:file];
 //}
 
+-(NSURL *) noteArrayPath
+{
+    NSURL * notesDictionary = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask]lastObject];
+    NSURL * noteList = [notesDictionary URLByAppendingPathComponent:@"noteDate"];
+    return noteList;
+}
 
+-(void) saveNoteData
+{
+    [[self noteStrings] writeToURL:[self noteArrayPath] atomically:YES];
+    NSLog(@"note strings written");
+}
+
+-(void) readNoteData
+{
+    NSMutableArray * savedNotes = nil;
+    NSMutableArray * notes = [NSMutableArray arrayWithContentsOfURL:[self noteArrayPath]];
+    if(notes.count != 0){
+        [self setNoteStrings:notes];
+        NSLog(@"There is data stored!");
+    }
+    else{
+        savedNotes = [NSMutableArray array];
+        [self setNoteStrings:savedNotes];
+        NSLog(@"No data.");
+    }
+    
+    
+}
 
 @end
